@@ -101,14 +101,48 @@ main {
 }
 
 .hero h1 {
+  position: relative;
   display: inline-block;
   font-size: 3.25rem;
   margin: 0 0 0.6rem;
   color: var(--red);
   -webkit-text-stroke: 2px var(--black);
   paint-order: stroke fill;
-  text-shadow: 4px 4px 0 var(--black);
-  transform: rotate(-1.5deg);
+  animation: stamp-in 0.45s both;
+}
+
+.hero h1::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  color: var(--black);
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  opacity: 0;
+  animation: burst-flash 0.4s ease-out 0.3s both;
+}
+
+@keyframes stamp-in {
+  0% {
+    opacity: 0;
+    transform: scale(1.6) translateY(-30px) rotate(-1.5deg);
+    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(0.95) translateY(2px) rotate(-1.5deg);
+    animation-timing-function: ease-out;
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0) rotate(-1.5deg);
+  }
+}
+
+@keyframes burst-flash {
+  0% { opacity: 0.55; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.35); }
 }
 
 .hero p {
@@ -136,8 +170,8 @@ main {
   border-radius: 3px 14px 4px 16px / 14px 4px 16px 3px;
   padding: 1.75rem;
   box-shadow: 7px 7px 0 var(--red);
-  transform: rotate(var(--rotate, 0deg));
   transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  animation: card-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 .project-card:nth-child(odd) {
@@ -148,8 +182,21 @@ main {
   --rotate: 1deg;
 }
 
+.project-card:nth-child(1) { animation-delay: 0.45s; }
+.project-card:nth-child(2) { animation-delay: 0.6s; }
+.project-card:nth-child(3) { animation-delay: 0.75s; }
+.project-card:nth-child(4) { animation-delay: 0.9s; }
+
+@keyframes card-pop {
+  0% { opacity: 0; transform: scale(0.7) rotate(-10deg); }
+  60% { opacity: 1; transform: scale(1.05) rotate(calc(var(--rotate, 0deg) * -1)); }
+  100% { opacity: 1; transform: scale(1) rotate(var(--rotate, 0deg)); }
+}
+
+/* !important needed: a filled keyframe animation outranks a plain hover
+   rule in the cascade, so hover's transform wouldn't otherwise win */
 .project-card:hover {
-  transform: rotate(0deg) translateY(-4px);
+  transform: rotate(0deg) translateY(-4px) !important;
   box-shadow: 10px 10px 0 var(--red);
 }
 
@@ -196,4 +243,25 @@ main {
   color: var(--gray);
   font-size: 0.9rem;
   padding: 2rem 1rem 2.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero h1,
+  .project-card {
+    animation: none;
+    opacity: 1;
+  }
+
+  .hero h1 {
+    transform: rotate(-1.5deg);
+  }
+
+  .hero h1::before {
+    animation: none;
+    opacity: 0;
+  }
+
+  .project-card {
+    transform: rotate(var(--rotate, 0deg));
+  }
 }
